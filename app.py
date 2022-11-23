@@ -23,9 +23,14 @@ def teardown_request(f):
 def exibir_posts():
     sql = "SELECT titulo, texto, data_criacao FROM posts ORDER BY id DESC"
     resultado = g.bd.execute(sql)
+    posts = []
 
-    post =  [
-                {"titulo":"Meu titulo", "texto":"primeiro texto", "data_criacao":"23/11/2022"},
-                {"titulo":"Meu titulo 2", "texto":"segundo texto", "data_criacao":"24/11/2022"}
-            ]
-    return render_template("hello.html", post=post)
+    for titulo, texto, data_criacao in resultado.fetchall():
+        posts.append
+        ({
+            "titulo": titulo,
+            "texto": texto,
+            "data_criacao": data_criacao,
+        })
+
+    return render_template("hello.html", post=posts)
