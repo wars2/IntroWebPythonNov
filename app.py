@@ -1,4 +1,4 @@
-from flask import Flask, render_template, g
+from flask import Flask, render_template, g, request, session, flash, url_for, redirect, abort
 import sqlite3
 
 DATABASE = "banco.bd"
@@ -33,4 +33,34 @@ def exibir_posts():
             "data_criacao": data_criacao,
         })
 
-    return render_template("layout.html", post=posts)
+    return render_template("exibir_posts.html", post=posts)
+
+@app.route("/inserir", methods = ["POST", "GET"])
+def inserir():
+    if not session.get('logado'):
+        abort(401)
+    titulo = request.form.get('titulo')
+    texto = request.form.get('texto')
+    sql = "INSERT INTO posts (titulo, texto) VALUES (?, ?)"
+    g.bd.execute(sql, [titulo, texto])
+    g.bd.commit()
+    flash("novo post inserido")
+    return redirect(url_for('exibir_posts'))
+
+@app.route("/login", methods = ["POST", "GET"])
+def login():
+    erro = None
+    if(request.method == "POST"):
+        if request.form['username'] == "Ocean" and request.form['password'] == 'ocean1234':
+            session['logado'] = True
+            flash("Usuario logado " + request.form['username'])
+            return redirect(url_for('exibir_posts'))
+        erro = "usuario ou senha incorretos"
+    return render_template("login.html", erro=erro)
+
+@app.route("/logout")
+def logout():
+    session.pop('logado', None)
+
+    flash('logout efetuado')
+    return redirect(url_for('exibir_posts'))
